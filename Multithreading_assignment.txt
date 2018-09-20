@@ -1,0 +1,156 @@
+Q1) Is the volatile modifier required when working with locks to guarantee memory visibility? 
+	Yes volatile make sure that a variable is not locally cached by any threads and any changes to this variable is visible to all threads.
+
+Q2)  I've found these two ways to write threads:
+
+With implements Runnable:
+
+public class MyRunnable implements Runnable {
+    public void run() {
+        //Code
+    }
+}
+//Started with a "new Thread(new MyRunnable()).start()" call
+Or, with extends Thread:
+
+public class MyThread extends Thread {
+    public MyThread() {
+        super("MyThread");
+    }
+    public void run() {
+        //Code
+    }
+}
+//Started with a "new MyThread().start()" call
+Is there any significant difference in these two blocks of code ?
+
+	When we extend Thread class, we can’t extend any other class.When we implement Runnable, we can save a space for our class to extend any other class in future.
+Implementing Runnable makes your class more flexible. If you extend Thread then the action you are doing is always going to be in a thread. However, if you implement Runnable it doesnt have to be. You can run it in a thread, or pass it to some kind of executor service, or just pass it around as a task within a single threaded application.
+
+
+Q3) Please create a daemon thread in java which is printing current time on console after every 1 second till your main program is running. (You can write any code in ur main method to be executed by ur main thread)
+
+
+package com2;
+
+import java.time.LocalTime;
+
+
+public class DaemonThreadDemo {
+
+	public static void main(String[] args)  {
+		
+		Thread t = new Thread(new displayTime());
+		 t.setDaemon(true);
+		 t.start();
+		 
+		try {
+			Thread.sleep(8000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+}
+class displayTime implements Runnable {
+    public void run() {
+    		while(true) {
+       System.out.println(LocalTime.now());
+       try {
+		Thread.sleep(1000);
+	} catch (InterruptedException e) {
+		e.printStackTrace();
+	}
+       }
+    }
+}
+
+
+
+
+
+Q4) public void foo() {
+    synchronized (this) {
+        // do something thread-safe
+    }
+}
+and:
+
+public synchronized void foo() {
+    // do something thread-safe
+}
+Are these two codes same or any difference in them? Should we use synchronized(this) in our code? 
+
+Synchronized block performs synchronization on specific resource of the method whereas synchronized method performs synchronization on whole method.
+
+
+Please explain why or why not?
+
+Q5) What is the difference in wait and sleep methods in java?
+	wait() is an instance method that is used for inter-thread communication.It can be called on any object, but it can only be called from a synchronized block. It releases the lock on the object so that another thread can jump in and acquire a lock.
+sleep() is a static method that can be called from any context. Thread.sleep() pauses the current thread and does not release any locks.
+
+Q6) What is the difference in notify and notify all?
+ notify method will only notify one Thread and notifyAll method will notify all Threads  which are waiting for that lock
+
+Q7) What is the difference in class lock and the object lock?
+	Class level lock is used when we want to synchronized both static method and non static method.
+ Object level lock is mechanism when we want to synchronize a non-static method or non-static code block such that only one thread will be able to execute the code block on given instance of the class.
+
+Q8) How many threads can a Java VM support? Does this vary by vendor? by operating system? other factors? Is it always better to write a code using multithreading or are there any disadvantages of doing multithreading?
+	Depends on the CPU/OS, /Java release you are using.
+Multithreading increases the complexity of program making it difficult to debug. Proper care should be taken to avoid deadlocks in program.
+
+Q9) Is it correct to say that static means one copy of the value for all objects and volatile means one copy of the value for all threads?
+
+Anyway a static variable value is also going to be one value for all threads, then why should we go for volatile?
+	In case of multithreading, each thread creates it own local copy of static variable, so the update made by one thread to static variable is not reflected in local copy of static variable in other threads and only one copy of volatile variable is shared among all threads.
+
+
+Q10) What is an InterruptedException? 
+
+
+What is the difference between the following ways of handling InterruptedException? What is the best way to do it?
+
+try{
+ //...
+} catch(InterruptedException e) { 
+   Thread.currentThread().interrupt(); 
+}
+OR
+
+try{
+ //...
+} catch(InterruptedException e) {
+   throw new RuntimeException(e);
+}
+
+	The InterruptedException is thrown when a thread is waiting or sleeping and another thread interrupts it using the interrupt method in class Thread. Former way is better way to handle InterruptedThreadExecution because we should always catch a specific exception to show the root cause.
+
+Q11) When do we use AtomicReference?
+
+Is it needed to create objects in all multithreaded programs?
+
+Provide a simple example where AtomicReference should be used.
+	An atomic reference is used when you need to share and change the state of an object between multiple threads
+
+Q12) How I can pass a parameter to a thread? Also, how does it work for anonymous classes?
+We can pass parameter to a thread by using parameterized constructor of class implementing runnable interface.
+For Anonymous class
+String value = "Some string";
+   Thread t = new Thread(new Runnable() {
+       param = value;
+       public void run() { 
+         ...
+       };
+   t.start();
+
+
+Q13) 
+What is the best way to implement Singleton in Java, in a multithreaded environment?
+What happens when multiple threads try to access getInstance() method at the same time?
+Can we make singleton's getInstance() synchronized?
+Is synchronization really needed, when using Singleton classes?
+
+	If singleton class is not thread safe and multiple thread try to access getInstance method at same time, it might create multiple instances of singleton class. Synchronizing getInstance() method will reduce the performance instead we can use synchronized block to achieve thread safety.
